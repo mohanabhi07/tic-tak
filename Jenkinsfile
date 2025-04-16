@@ -23,9 +23,9 @@ pipeline {
                 dir(DOCKERFILE_PATH) {
                     script {
                         // Build the Docker image
-                        sh "sudo docker build -t ${DOCKER_HUB_REPO}:${IMAGE_TAG} ."
+                        sh "docker build -t ${DOCKER_HUB_REPO}:${IMAGE_TAG} ."
                         // Also tag as latest
-                        sh "sudo docker tag ${DOCKER_HUB_REPO}:${IMAGE_TAG} ${DOCKER_HUB_REPO}:latest"
+                        sh "docker tag ${DOCKER_HUB_REPO}:${IMAGE_TAG} ${DOCKER_HUB_REPO}:latest"
                     }
                 }
             }
@@ -38,11 +38,11 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', 
                                                      passwordVariable: 'DOCKER_PASSWORD', 
                                                      usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh "echo ${DOCKER_PASSWORD} | sudo docker login -u ${DOCKER_USERNAME} --password-stdin"
+                        sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
                         
                         // Push both tags
-                        sh "sudo docker push ${DOCKER_HUB_REPO}:${IMAGE_TAG}"
-                        sh "sudo docker push ${DOCKER_HUB_REPO}:latest"
+                        sh "docker push ${DOCKER_HUB_REPO}:${IMAGE_TAG}"
+                        sh "docker push ${DOCKER_HUB_REPO}:latest"
                     }
                 }
             }
@@ -52,11 +52,11 @@ pipeline {
     post {
         always {
             // Clean up local Docker images to save space
-            sh "sudo docker rmi ${DOCKER_HUB_REPO}:${IMAGE_TAG} || true"
-            sh "sudo docker rmi ${DOCKER_HUB_REPO}:latest || true"
+            sh "docker rmi ${DOCKER_HUB_REPO}:${IMAGE_TAG} || true"
+            sh "docker rmi ${DOCKER_HUB_REPO}:latest || true"
             
             // Log out from Docker Hub
-            sh "sudo docker logout"
+            sh "docker logout"
         }
         success {
             echo "Successfully built and pushed Docker image ${DOCKER_HUB_REPO}:${IMAGE_TAG}"
